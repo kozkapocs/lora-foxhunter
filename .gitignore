@@ -1,0 +1,27 @@
+# PlatformIO build/cache
+.pio/
+.platformio/
+
+# Firmware/build outputs
+*.elf
+*.hex
+*.uf2
+*.bin
+*.a
+*.o
+*.so
+
+# Logs
+*.log
+
+# Local notes
+LLM-*.md
+
+# IDE/editor
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
