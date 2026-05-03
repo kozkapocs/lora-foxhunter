@@ -150,17 +150,22 @@ silently discarded.
 
 ```
 ┌────────────────────────┐
-│ SYS: MYFOX             │  ← system identifier
-│ FOX: 3                 │  ← selected fox number
+│ ID: MYFOX | F: 3       │  ← system identifier + fox number
 │                        │
-│ -87 dBm                │  ← RSSI (large text, or "---" when no signal)
-│                        │
-│ ████████░░░░░░░░░░░░░░ │  ← signal bar (-120 dBm=empty, -30 dBm=full)
+│         🙂             │  ← smiley face (signal strength indicator)
+│                        │     😢 weak (0-2), 😐 medium (3-5),
+│                        │     🙂 good (6-8), 😊 excellent (9-10)
+│ ┌────────────────────┐ │
+│ │████░░░░░░░░░░░░░░░│ │  ← progress bar (0-10 scale)
+│ ┊  ┊  ┊  ┊  ┊  ┊    │  ← tick marks
+│ 0  2  4  6  8  10    │  ← scale labels
 └────────────────────────┘
 ```
 
-The displayed RSSI value is held for **300 ms** after the last received packet.
-If no packet arrives within that window the value resets to `---` and the bar
+The signal strength is derived from RSSI: **-120 dBm → 0**, **0 dBm → 10**.
+
+The displayed value is held for **500 ms** after the last received packet.
+If no packet arrives within that window the display shows `---` and the bar
 clears.
 
 ---

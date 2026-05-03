@@ -20,7 +20,7 @@
 
 // Signal hold time: if no packet arrives within this window the display
 // reverts to "no signal" state.
-static const uint32_t SIGNAL_HOLD_MS = 500;
+static const uint32_t SIGNAL_HOLD_MS = 600;
 
 // ---------------------------------------------------------------------------
 // Global objects

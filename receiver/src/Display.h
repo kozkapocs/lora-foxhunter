@@ -6,12 +6,14 @@
 // Drives the 1.3" SH1106 OLED (128×64 px, I2C address 0x3D).
 //
 // Screen layout:
-//   Row 0  (y= 0, size 1): system identifier
-//   Row 1  (y=10, size 1): selected fox number
-//   Row 2  (y=22, size 2): RSSI value in dBm, or "---" when no signal
-//   Bar    (y=52,  h=10):  horizontal progress bar proportional to RSSI
+//   Row 0  (y= 0, size 1): ID: XXXXXXXX | F: NNN (system ID + fox number)
+//   Smiley (y=12-35):      visual signal strength indicator (sad → happy)
+//   Bar    (y=36-54, h=18): horizontal progress bar (0-10 scale)
+//   Ticks  (y=54-57, h=3):  ruler-style tick marks at 0, 2, 4, 6, 8, 10
+//   Labels (y=56, size 1):  numeric labels below ticks (0, 2, 4, 6, 8, 10)
 //
-// RSSI bar mapping: -120 dBm → empty, -30 dBm → full.
+// RSSI mapping: -120 dBm → 0, 0 dBm → 10.
+// Smiley states: 0-2 sad, 3-5 neutral, 6-8 happy, 9-10 very happy.
 class ReceiverDisplay {
 public:
     ReceiverDisplay();
@@ -31,5 +33,13 @@ public:
 private:
     Adafruit_SH1106G oled_;
 
-    void draw_bar(float rssi);
+    // Convert RSSI (dBm) to 0-10 scale.
+    uint8_t rssi_to_scale(float rssi);
+
+    // Draw a smiley face based on signal strength (0-10).
+    // 0-2: sad, 3-5: neutral, 6-8: happy, 9-10: very happy.
+    void draw_smiley(uint8_t scale);
+
+    // Draw the progress bar based on signal scale (0-10).
+    void draw_bar(uint8_t scale);
 };
