@@ -1,3 +1,5 @@
+![FoxHunter Header](images/header.png)
+
 # FoxHunter
 
 LoRa-based fox-hunting (radio direction finding) system.
@@ -19,6 +21,8 @@ This project implements the transmitter and receiver firmware using affordable o
 - **Role:** Listens for beacon packets, filters by system identifier, and displays the signal strength (RSSI) of the selected fox on the built-in OLED screen. The player navigates with the joystick to select which fox to measure.
 - **Build & documentation:** [receiver/README.md](receiver/README.md)
 
+![Receiver](images/receiver.jpg)
+
 ### Configuration tools
 - **Location:** `tools/`
 - `configure_beacon.py` — Python CLI tool to configure a beacon over USB serial
@@ -26,6 +30,8 @@ This project implements the transmitter and receiver firmware using affordable o
 - `web_configurator.html` — Web-based configurator using Chrome Web Serial API (single HTML file, no dependencies)
 
 #### Web Configurator
+
+![Web Configurator](images/webconfig.png)
 
 Open `tools/web_configurator.html` in Chrome or Edge browser. The configurator provides a graphical interface to configure both beacons and receivers:
 
