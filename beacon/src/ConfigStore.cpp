@@ -9,7 +9,7 @@ using namespace Adafruit_LittleFS_Namespace;
 // Magic marker stored at the start of the config file.
 // Change this value whenever the BeaconConfig layout changes so that
 // stale files are automatically ignored after a firmware update.
-static const uint32_t CONFIG_MAGIC = 0x464F5801U;  // 'FOX' + version 1
+static const uint32_t CONFIG_MAGIC = 0x464F5802U;  // 'FOX' + version 2
 static const char *   CONFIG_PATH  = "/foxhunter.cfg";
 
 void config_init_defaults(BeaconConfig &cfg) {
@@ -21,6 +21,7 @@ void config_init_defaults(BeaconConfig &cfg) {
     cfg.period_s     = 20;
     cfg.sf           = 9;
     cfg.cr           = 5;
+    cfg.tx_power     = 18;
     // system_id is left as empty string, fox_num stays 0 → invalid config
 }
 

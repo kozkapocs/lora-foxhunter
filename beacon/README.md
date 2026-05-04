@@ -146,6 +146,7 @@ FREQ:    869.450
 BW:      125.00
 SF:      9
 CR:      5
+TXPOWER: 18
 -------------------------------
 ```
 
@@ -161,7 +162,7 @@ python3 tools/configure_beacon.py --port /dev/ttyACM0 --sysid TEAM1 --fox 1
 python3 tools/configure_beacon.py --port /dev/ttyACM0 \
     --sysid TEAM1 --fox 2 \
     --txcount 10 --txint 1 --period 20 \
-    --freq 869.45 --bw 125 --sf 9 --cr 5
+    --freq 869.45 --bw 125 --sf 9 --cr 5 --txpower 18
 ```
 
 ### All available parameters
@@ -177,6 +178,7 @@ python3 tools/configure_beacon.py --port /dev/ttyACM0 \
 | `--bw`      | LoRa bandwidth in kHz                            | 7.8 / 10.4 / 15.6 / 20.8 / 31.25 / 41.7 / 62.5 / **125** / 250 / 500 |
 | `--sf`      | Spreading factor                                  | 5–12 (default 9) |
 | `--cr`      | Coding rate                                       | 5–8 (default 5) |
+| `--txpower` | TX power in dBm                                  | -9–22 (default 18) |
 
 ### Erase stored configuration
 
@@ -195,6 +197,7 @@ and type commands manually:
 ```
 SET SYSID TEAM1
 SET FOX 1
+SET TXPOWER 18
 GET ALL
 SAVE
 ```

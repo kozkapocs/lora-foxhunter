@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxHunter Configurator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .status-indicator.disconnected {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+
+        .status-indicator.connected {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+
+        .device-selector {
+            padding: 20px 30px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .device-selector label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 12px;
+            color: #374151;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .radio-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .radio-option label {
+            display: block;
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .radio-option label:hover {
+            border-color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: #667eea;
+            background: #f3f4f6;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input.invalid {
+            border-color: #ef4444;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .form-group .error {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .log-container {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .log-container .log-entry {
+            margin-bottom: 4px;
+        }
+
+        .log-container .log-command {
+            color: #60a5fa;
+        }
+
+        .log-container .log-response {
+            color: #34d399;
+        }
+
+        .log-container .log-error {
+            color: #f87171;
+        }
+
+        .log-container .log-info {
+            color: #a78bfa;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .config-display {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        fieldset {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-weight: 600;
+            color: #374151;
+            padding: 0 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦊 FoxHunter Configurator</h1>
+            <p>Web Serial configuration tool for LoRa transmitters and receivers</p>
+        </div>
+
+        <div class="device-selector">
+            <label>Device Type:</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" name="device-type" id="device-beacon" value="beacon" checked>
+                    <label for="device-beacon">📡 Transmitter (Beacon)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" name="device-type" id="device-receiver" value="receiver">
+                    <label for="device-receiver">📻 Receiver</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="connect">Connect</button>
+            <button class="tab" data-tab="configure">Configure</button>
+            <button class="tab" data-tab="status">Status</button>
+        </div>
+
+        <div id="tab-connect" class="tab-content active">
+            <div class="alert alert-info">
+                <strong>Using Web Serial API:</strong> This configurator uses the Chrome/Edge browser Web Serial API.
+                Click the "Connect" button and select the device's serial port.
+            </div>
+            
+            <div style="text-align: center; padding: 40px 20px;">
+                <p style="margin-bottom: 20px; color: #6b7280;">
+                    <span class="status-indicator disconnected" id="status-dot"></span>
+                    <span id="connection-status">Not connected</span>
+                </p>
+                <button class="btn btn-primary" id="btn-connect">
+                    Connect to device
+                </button>
+                <button class="btn btn-secondary hidden" id="btn-disconnect">
+                    Disconnect
+                </button>
+            </div>
+        </div>
+
+        <div id="tab-configure" class="tab-content">
+            <!-- Beacon form -->
+            <form id="form-beacon" class="device-form">
+                <fieldset>
+                    <legend>Identification</legend>
+                    <div class="form-group">
+                        <label for="beacon-sysid">System ID (SYSID) *</label>
+                        <input type="text" id="beacon-sysid" maxlength="8" required>
+                        <small>1-8 characters (e.g. OVODAS, ISKOLASOK)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="beacon-fox">Fox Number (FOX) *</label>
+                        <input type="number" id="beacon-fox" min="1" max="255" required>
+                        <small>Number between 1-255</small>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Transmission Parameters</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="beacon-txcount">Packet Count (TXCOUNT)</label>
+                            <input type="number" id="beacon-txcount" min="1" max="100" placeholder="10">
+                            <small>Default: 10</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="beacon-txint">Packet Interval (TXINT)</label>
+                            <input type="number" id="beacon-txint" min="1" max="255" placeholder="1">
+                            <small>Seconds, default: 1</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="beacon-period">Full Cycle (PERIOD)</label>
+                        <input type="number" id="beacon-period" min="1" max="255" placeholder="20">
+                        <small>Seconds, default: 20</small>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>LoRa Radio Settings</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="beacon-freq">Frequency (FREQ)</label>
+                            <input type="number" id="beacon-freq" step="0.01" min="860" max="930" placeholder="869.45">
+                            <small>MHz, default: 869.45</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="beacon-bw">Bandwidth (BW)</label>
+                            <input type="number" id="beacon-bw" step="0.1" placeholder="125">
+                            <small>kHz, default: 125</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="beacon-sf">Spreading Factor (SF)</label>
+                            <input type="number" id="beacon-sf" min="5" max="12" placeholder="9">
+                            <small>5-12, default: 9</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="beacon-cr">Coding Rate (CR)</label>
+                            <input type="number" id="beacon-cr" min="5" max="8" placeholder="5">
+                            <small>5-8, default: 5</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="beacon-txpower">TX Power (TXPOWER)</label>
+                            <input type="number" id="beacon-txpower" min="-9" max="22" placeholder="18">
+                            <small>dBm, -9 - 22, default: 18</small>
+                        </div>
+                        <div class="form-group">
+                            <!-- Empty for layout symmetry -->
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" id="beacon-read-config">
+                        Read Current Configuration
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Save to Device
+                    </button>
+                    <button type="button" class="btn btn-danger" id="beacon-reset">
+                        Reset Configuration
+                    </button>
+                </div>
+            </form>
+
+            <!-- Receiver form -->
+            <form id="form-receiver" class="device-form hidden">
+                <fieldset>
+                    <legend>Identification</legend>
+                    <div class="form-group">
+                        <label for="receiver-sysid">System ID (SYSID) *</label>
+                        <input type="text" id="receiver-sysid" maxlength="8" required>
+                        <small>1-8 characters, must match the transmitters' SYSID</small>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>LoRa Radio Settings</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="receiver-freq">Frequency (FREQ)</label>
+                            <input type="number" id="receiver-freq" step="0.01" min="860" max="930" placeholder="869.45">
+                            <small>MHz, default: 869.45</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiver-bw">Bandwidth (BW)</label>
+                            <input type="number" id="receiver-bw" step="0.1" placeholder="125">
+                            <small>kHz, default: 125</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="receiver-sf">Spreading Factor (SF)</label>
+                            <input type="number" id="receiver-sf" min="5" max="12" placeholder="9">
+                            <small>5-12, default: 9</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiver-cr">Coding Rate (CR)</label>
+                            <input type="number" id="receiver-cr" min="5" max="8" placeholder="5">
+                            <small>5-8, default: 5</small>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Audio Settings</legend>
+                    <div class="form-group">
+                        <label for="receiver-beep">Beep Duration (BEEP)</label>
+                        <input type="number" id="receiver-beep" min="20" max="500" placeholder="100">
+                        <small>Milliseconds, 20-500, default: 100</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="receiver-freqmin">Min. Frequency (FREQMIN)</label>
+                            <input type="number" id="receiver-freqmin" min="50" max="5000" placeholder="500">
+                            <small>Hz, 50-5000, default: 500</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="receiver-freqmax">Max. Frequency (FREQMAX)</label>
+                            <input type="number" id="receiver-freqmax" min="50" max="5000" placeholder="2500">
+                            <small>Hz, 50-5000, default: 2500</small>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" id="receiver-read-config">
+                        Read Current Configuration
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Save to Device
+                    </button>
+                    <button type="button" class="btn btn-danger" id="receiver-reset">
+                        Reset Configuration
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="tab-status" class="tab-content">
+            <h3 style="margin-bottom: 15px; color: #374151;">Communication Log</h3>
+            <div class="log-container" id="log-output">
+                <div class="log-entry log-info">Log ready...</div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-secondary" id="btn-clear-log">Clear Log</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Serial communication manager
+        class SerialManager {
+            constructor() {
+                this.port = null;
+                this.reader = null;
+                this.writer = null;
+                this.readBuffer = '';
+                this.isReading = false;
+                this.commandQueue = [];
+                this.currentCommand = null;
+            }
+
+            async connect() {
+                if (!('serial' in navigator)) {
+                    throw new Error('Web Serial API is not supported in this browser. Use Chrome or Edge.');
+                }
+
+                try {
+                    this.port = await navigator.serial.requestPort();
+                    await this.port.open({ baudRate: 115200 });
+                    
+                    this.writer = this.port.writable.getWriter();
+                    this.startReading();
+                    
+                    // Wait for boot banner (up to 5 seconds)
+                    await this.waitForBoot();
+                    
+                    return true;
+                } catch (error) {
+                    throw new Error(`Connection error: ${error.message}`);
+                }
+            }
+
+            async waitForBoot() {
+                return new Promise((resolve) => {
+                    const timeout = setTimeout(() => {
+                        resolve();
+                    }, 5000);
+                    
+                    // If we get any data, boot is complete
+                    const checkBoot = setInterval(() => {
+                        if (this.readBuffer.length > 0) {
+                            clearTimeout(timeout);
+                            clearInterval(checkBoot);
+                            this.readBuffer = ''; // Clear boot messages
+                            setTimeout(resolve, 500); // Extra 500ms for radio init
+                        }
+                    }, 100);
+                });
+            }
+
+            async startReading() {
+                this.isReading = true;
+                const decoder = new TextDecoderStream();
+                this.port.readable.pipeTo(decoder.writable);
+                this.reader = decoder.readable.getReader();
+                
+                try {
+                    while (this.isReading) {
+                        const { value, done } = await this.reader.read();
+                        if (done) break;
+                        if (value) {
+                            this.readBuffer += value;
+                            this.processBuffer();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Read error:', error);
+                }
+            }
+
+            processBuffer() {
+                const lines = this.readBuffer.split(/\r?\n/);
+                this.readBuffer = lines.pop(); // Keep incomplete line in buffer
+                
+                for (const line of lines) {
+                    if (line.trim()) {
+                        this.handleLine(line.trim());
+                    }
+                }
+            }
+
+            handleLine(line) {
+                log('response', line);
+                
+                if (this.currentCommand) {
+                    this.currentCommand.response = line;
+                    if (this.currentCommand.resolve) {
+                        this.currentCommand.resolve(line);
+                        this.currentCommand = null;
+                    }
+                }
+            }
+
+            async sendCommand(cmd, timeout = 3000) {
+                if (!this.writer) {
+                    throw new Error('No active connection');
+                }
+
+                return new Promise(async (resolve, reject) => {
+                    this.currentCommand = { cmd, resolve, reject };
+                    
+                    const timeoutId = setTimeout(() => {
+                        if (this.currentCommand && this.currentCommand.cmd === cmd) {
+                            this.currentCommand = null;
+                            reject(new Error('Timeout (no response)'));
+                        }
+                    }, timeout);
+
+                    try {
+                        log('command', cmd);
+                        const encoder = new TextEncoder();
+                        await this.writer.write(encoder.encode(cmd + '\n'));
+                        
+                        const response = await new Promise((res, rej) => {
+                            this.currentCommand.resolve = (line) => {
+                                clearTimeout(timeoutId);
+                                res(line);
+                            };
+                            this.currentCommand.reject = rej;
+                        });
+                        
+                        resolve(response);
+                    } catch (error) {
+                        clearTimeout(timeoutId);
+                        this.currentCommand = null;
+                        reject(error);
+                    }
+                });
+            }
+
+            async sendGetAll(timeout = 5000) {
+                if (!this.writer) {
+                    throw new Error('No active connection');
+                }
+
+                return new Promise(async (resolve, reject) => {
+                    const lines = [];
+                    let idleTimeout = null;
+                    const IDLE_MS = 500; // If no line arrives for 500ms, we're done
+                    
+                    const timeoutId = setTimeout(() => {
+                        if (idleTimeout) clearTimeout(idleTimeout);
+                        this.handleLine = originalHandler;
+                        if (lines.length > 0) {
+                            log('info', `GET ALL completed on timeout: ${lines.length} lines`);
+                            resolve(lines);
+                        } else {
+                            reject(new Error('Timeout during GET ALL (no response)')); 
+                        }
+                    }, timeout);
+
+                    const originalHandler = this.handleLine.bind(this);
+                    this.handleLine = (line) => {
+                        log('response', line);
+                        lines.push(line);
+                        
+                        // Break on separator
+                        if (line.startsWith('---') && lines.length > 1) {
+                            log('info', `GET ALL completed (separator): ${lines.length} lines`);
+                            clearTimeout(timeoutId);
+                            if (idleTimeout) clearTimeout(idleTimeout);
+                            this.handleLine = originalHandler;
+                            resolve(lines);
+                            return;
+                        }
+                        
+                        // Reset idle timer - if no more lines come, we finish
+                        if (idleTimeout) clearTimeout(idleTimeout);
+                        idleTimeout = setTimeout(() => {
+                            log('info', `GET ALL completed (idle): ${lines.length} lines`);
+                            clearTimeout(timeoutId);
+                            this.handleLine = originalHandler;
+                            resolve(lines);
+                        }, IDLE_MS);
+                    };
+
+                    try {
+                        log('command', 'GET ALL');
+                        const encoder = new TextEncoder();
+                        await this.writer.write(encoder.encode('GET ALL\n'));
+                    } catch (error) {
+                        clearTimeout(timeoutId);
+                        if (idleTimeout) clearTimeout(idleTimeout);
+                        this.handleLine = originalHandler;
+                        reject(error);
+                    }
+                });
+            }
+
+            async disconnect() {
+                this.isReading = false;
+                
+                if (this.reader) {
+                    await this.reader.cancel();
+                    this.reader.releaseLock();
+                    this.reader = null;
+                }
+                
+                if (this.writer) {
+                    this.writer.releaseLock();
+                    this.writer = null;
+                }
+                
+                if (this.port) {
+                    await this.port.close();
+                    this.port = null;
+                }
+            }
+
+            isConnected() {
+                return this.port !== null;
+            }
+        }
+
+        // Global state
+        const serial = new SerialManager();
+        let currentDeviceType = 'beacon';
+
+        // UI Elements
+        const elements = {
+            btnConnect: document.getElementById('btn-connect'),
+            btnDisconnect: document.getElementById('btn-disconnect'),
+            statusDot: document.getElementById('status-dot'),
+            connectionStatus: document.getElementById('connection-status'),
+            logOutput: document.getElementById('log-output'),
+            btnClearLog: document.getElementById('btn-clear-log'),
+            formBeacon: document.getElementById('form-beacon'),
+            formReceiver: document.getElementById('form-receiver'),
+            beaconReadConfig: document.getElementById('beacon-read-config'),
+            beaconReset: document.getElementById('beacon-reset'),
+            receiverReadConfig: document.getElementById('receiver-read-config'),
+            receiverReset: document.getElementById('receiver-reset'),
+        };
+
+        // Logging
+        function log(type, message) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+            let prefix = '';
+            
+            switch (type) {
+                case 'command':
+                    prefix = `[${timestamp}] → `;
+                    break;
+                case 'response':
+                    prefix = `[${timestamp}] ← `;
+                    break;
+                case 'error':
+                    prefix = `[${timestamp}] ✗ `;
+                    break;
+                case 'info':
+                    prefix = `[${timestamp}] ℹ `;
+                    break;
+            }
+            
+            entry.textContent = prefix + message;
+            elements.logOutput.appendChild(entry);
+            elements.logOutput.scrollTop = elements.logOutput.scrollHeight;
+        }
+
+        // Connection handlers
+        elements.btnConnect.addEventListener('click', async () => {
+            try {
+                elements.btnConnect.disabled = true;
+                elements.btnConnect.innerHTML = '<span class="spinner"></span> Connecting...';
+                
+                await serial.connect();
+                
+                updateConnectionUI(true);
+                log('info', 'Successfully connected to device');
+                
+                // Auto switch to configure tab
+                switchTab('configure');
+            } catch (error) {
+                log('error', error.message);
+                alert(error.message);
+                updateConnectionUI(false);
+            } finally {
+                elements.btnConnect.disabled = false;
+                elements.btnConnect.textContent = 'Connect to device';
+            }
+        });
+
+        elements.btnDisconnect.addEventListener('click', async () => {
+            try {
+                await serial.disconnect();
+                updateConnectionUI(false);
+                log('info', 'Connection closed');
+            } catch (error) {
+                log('error', error.message);
+            }
+        });
+
+        function updateConnectionUI(connected) {
+            if (connected) {
+                elements.statusDot.className = 'status-indicator connected';
+                elements.connectionStatus.textContent = 'Connected';
+                elements.btnConnect.classList.add('hidden');
+                elements.btnDisconnect.classList.remove('hidden');
+            } else {
+                elements.statusDot.className = 'status-indicator disconnected';
+                elements.connectionStatus.textContent = 'Not connected';
+                elements.btnConnect.classList.remove('hidden');
+                elements.btnDisconnect.classList.add('hidden');
+            }
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                switchTab(tabName);
+            });
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // Device type switching
+        document.querySelectorAll('input[name="device-type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentDeviceType = e.target.value;
+                updateDeviceForm();
+            });
+        });
+
+        function updateDeviceForm() {
+            if (currentDeviceType === 'beacon') {
+                elements.formBeacon.classList.remove('hidden');
+                elements.formReceiver.classList.add('hidden');
+            } else {
+                elements.formBeacon.classList.add('hidden');
+                elements.formReceiver.classList.remove('hidden');
+            }
+        }
+
+        // Clear log
+        elements.btnClearLog.addEventListener('click', () => {
+            elements.logOutput.innerHTML = '<div class="log-entry log-info">Log cleared</div>';
+        });
+
+        // Read config handlers
+        elements.beaconReadConfig.addEventListener('click', async () => {
+            await readCurrentConfig('beacon');
+        });
+
+        elements.receiverReadConfig.addEventListener('click', async () => {
+            await readCurrentConfig('receiver');
+        });
+
+        async function readCurrentConfig(deviceType) {
+            if (!serial.isConnected()) {
+                alert('No active connection to device!');
+                return;
+            }
+
+            try {
+                const btn = deviceType === 'beacon' ? elements.beaconReadConfig : elements.receiverReadConfig;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner"></span> Reading...';
+                
+                log('info', 'Reading configuration...');
+                const lines = await serial.sendGetAll();
+                
+                // Parse and populate form
+                parseConfigLines(lines, deviceType);
+                
+                log('info', 'Configuration read successfully');
+                switchTab('configure');
+            } catch (error) {
+                log('error', `Error reading configuration: ${error.message}`);
+                alert('Failed to read configuration: ' + error.message);
+            } finally {
+                const btn = deviceType === 'beacon' ? elements.beaconReadConfig : elements.receiverReadConfig;
+                btn.disabled = false;
+                btn.textContent = 'Read Current Configuration';
+            }
+        }
+
+        function parseConfigLines(lines, deviceType) {
+            const prefix = deviceType + '-';
+            
+            for (const line of lines) {
+                if (line.startsWith('---') || !line.includes('=')) continue;
+                
+                const parts = line.split('=');
+                if (parts.length < 2) continue;
+                
+                const key = parts[0].trim().toLowerCase();
+                const value = parts.slice(1).join('=').trim();
+                
+                const fieldMap = {
+                    'sysid': 'sysid',
+                    'fox': 'fox',
+                    'txcount': 'txcount',
+                    'txint': 'txint',
+                    'period': 'period',
+                    'freq': 'freq',
+                    'bw': 'bw',
+                    'sf': 'sf',
+                    'cr': 'cr',
+                    'txpower': 'txpower',
+                    'beep': 'beep',
+                    'freqmin': 'freqmin',
+                    'freqmax': 'freqmax'
+                };
+                
+                if (fieldMap[key]) {
+                    const input = document.getElementById(prefix + fieldMap[key]);
+                    if (input) {
+                        // Extract numeric value (handle "123.45 MHz" format)
+                        const numericValue = value.split(' ')[0];
+                        input.value = numericValue;
+                    }
+                }
+            }
+        }
+
+        // Reset handlers
+        elements.beaconReset.addEventListener('click', async () => {
+            await resetDevice('beacon');
+        });
+
+        elements.receiverReset.addEventListener('click', async () => {
+            await resetDevice('receiver');
+        });
+
+        async function resetDevice(deviceType) {
+            if (!serial.isConnected()) {
+                alert('No active connection to device!');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to reset the saved configuration? The device will restart.')) {
+                return;
+            }
+
+            try {
+                const btn = deviceType === 'beacon' ? elements.beaconReset : elements.receiverReset;
+                btn.disabled = true;
+                
+                log('info', 'Resetting configuration...');
+                const response = await serial.sendCommand('RESET');
+                
+                if (response.startsWith('OK') || response.includes('reset') || response.includes('reboot')) {
+                    log('info', 'Configuration reset, device restarting');
+                    alert('Configuration reset. Device has restarted.');
+                    
+                    // Disconnect and reconnect
+                    await serial.disconnect();
+                    updateConnectionUI(false);
+                } else {
+                    log('error', 'Reset failed: ' + response);
+                    alert('Reset failed: ' + response);
+                }
+            } catch (error) {
+                log('error', `Error during reset: ${error.message}`);
+                alert('Error occurred: ' + error.message);
+            } finally {
+                const btn = deviceType === 'beacon' ? elements.beaconReset : elements.receiverReset;
+                btn.disabled = false;
+            }
+        }
+
+        // Form submission handlers
+        elements.formBeacon.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveConfiguration('beacon');
+        });
+
+        elements.formReceiver.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveConfiguration('receiver');
+        });
+
+        async function saveConfiguration(deviceType) {
+            if (!serial.isConnected()) {
+                alert('No active connection to device!');
+                return;
+            }
+
+            const formData = collectFormData(deviceType);
+            
+            // Validate required fields
+            if (deviceType === 'beacon') {
+                if (!formData.sysid || !formData.fox) {
+                    alert('SYSID and FOX fields are required!');
+                    return;
+                }
+            } else {
+                if (!formData.sysid) {
+                    alert('SYSID field is required!');
+                    return;
+                }
+            }
+
+            try {
+                const form = deviceType === 'beacon' ? elements.formBeacon : elements.formReceiver;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner"></span> Saving...';
+                
+                log('info', `Configuring ${deviceType === 'beacon' ? 'transmitter' : 'receiver'}...`);
+                
+                // Send SET commands
+                let success = true;
+                for (const [key, value] of Object.entries(formData)) {
+                    if (value === null || value === '') continue;
+                    
+                    const command = `SET ${key.toUpperCase()} ${value}`;
+                    const response = await serial.sendCommand(command);
+                    
+                    if (!response.startsWith('OK')) {
+                        log('error', `${command} → ${response}`);
+                        alert(`Error: ${command} → ${response}`);
+                        success = false;
+                        break;
+                    } else {
+                        log('info', `${command} → OK`);
+                    }
+                }
+                
+                if (success) {
+                    // Send SAVE command
+                    log('info', 'Saving to flash memory...');
+                    const saveResponse = await serial.sendCommand('SAVE');
+                    
+                    if (saveResponse.startsWith('OK')) {
+                        log('info', 'Configuration saved successfully!');
+                        alert('Configuration saved to device successfully!');
+                        
+                        // Verify by reading back
+                        await readCurrentConfig(deviceType);
+                    } else {
+                        log('error', 'SAVE → ' + saveResponse);
+                        alert('Save failed: ' + saveResponse);
+                    }
+                }
+            } catch (error) {
+                log('error', `Error during save: ${error.message}`);
+                alert('Error occurred: ' + error.message);
+            } finally {
+                const form = deviceType === 'beacon' ? elements.formBeacon : elements.formReceiver;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save to Device';
+            }
+        }
+
+        function collectFormData(deviceType) {
+            const prefix = deviceType + '-';
+            const data = {};
+            
+            const fields = deviceType === 'beacon' 
+                ? ['sysid', 'fox', 'txcount', 'txint', 'period', 'freq', 'bw', 'sf', 'cr', 'txpower']
+                : ['sysid', 'freq', 'bw', 'sf', 'cr', 'beep', 'freqmin', 'freqmax'];
+            
+            for (const field of fields) {
+                const input = document.getElementById(prefix + field);
+                if (input && input.value.trim() !== '') {
+                    data[field] = input.value.trim();
+                }
+            }
+            
+            return data;
+        }
+
+        // Initialize
+        updateDeviceForm();
+    </script>
+</body>
+</html>

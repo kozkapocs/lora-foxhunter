@@ -7,11 +7,14 @@
 
 // All receiver configuration parameters.
 struct ReceiverConfig {
-    float   freq;                           // MHz  (default 869.45)
-    float   bw;                             // kHz  (default 125.0)
-    char    system_id[SYSID_MAX_LEN + 1];  // null-terminated, 1-8 printable chars
-    uint8_t sf;                             // spreading factor 5-12 (default 9)
-    uint8_t cr;                             // coding rate 5-8      (default 5)
+    float    freq;                           // MHz  (default 869.45)
+    float    bw;                             // kHz  (default 125.0)
+    char     system_id[SYSID_MAX_LEN + 1];  // null-terminated, 1-8 printable chars
+    uint8_t  sf;                             // spreading factor 5-12 (default 9)
+    uint8_t  cr;                             // coding rate 5-8      (default 5)
+    uint16_t beep_duration_ms;               // buzzer beep duration in ms (default 100)
+    uint16_t beep_freq_min;                  // min. beep frequency in Hz (default 500)
+    uint16_t beep_freq_max;                  // max. beep frequency in Hz (default 2500)
 };
 
 // Fill all fields with factory defaults.

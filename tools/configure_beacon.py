@@ -14,7 +14,7 @@ Usage examples:
   python3 configure_beacon.py --port /dev/ttyACM0 \\
       --sysid ISKOLASOK --fox 2 \\
       --txcount 10 --txint 1 --period 20 \\
-      --freq 869.45 --bw 125 --sf 9 --cr 5
+      --freq 869.45 --bw 125 --sf 9 --cr 5 --txpower 18
 
   # Erase stored config
   python3 configure_beacon.py --port /dev/ttyACM0 --reset
@@ -99,6 +99,7 @@ def apply_settings(ser: serial.Serial, args: argparse.Namespace) -> bool:
         ("bw",      "SET BW {}"),
         ("sf",      "SET SF {}"),
         ("cr",      "SET CR {}"),
+        ("txpower", "SET TXPOWER {}"),
     ]
 
     any_sent = False
@@ -131,6 +132,7 @@ def main() -> None:
     parser.add_argument("--bw",      type=float, help="LoRa bandwidth in kHz (default 125)")
     parser.add_argument("--sf",      type=int,   help="Spreading factor 5-12 (default 9)")
     parser.add_argument("--cr",      type=int,   help="Coding rate 5-8 (default 5)")
+    parser.add_argument("--txpower", type=int,   help="TX power in dBm, -9 to 22 (default 18)")
     parser.add_argument("--reset",   action="store_true", help="Erase stored config and reboot")
     args = parser.parse_args()
 
@@ -146,7 +148,7 @@ def main() -> None:
     # If no SET arguments were given, just show the current config.
     has_set_args = any(
         getattr(args, a) is not None
-        for a in ("sysid", "fox", "txcount", "txint", "period", "freq", "bw", "sf", "cr")
+        for a in ("sysid", "fox", "txcount", "txint", "period", "freq", "bw", "sf", "cr", "txpower")
     )
     if not has_set_args:
         print("Current config on device:")

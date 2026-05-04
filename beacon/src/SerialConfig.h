@@ -15,6 +15,7 @@
 //   SET BW    <kHz>      — LoRa bandwidth
 //   SET SF    <5-12>     — LoRa spreading factor
 //   SET CR    <5-8>      — LoRa coding rate
+//   SET TXPOWER <-9-22>  — TX power in dBm
 //   GET ALL              — print all current parameters
 //   SAVE                 — persist current config to flash
 //   RESET                — erase stored config and reboot

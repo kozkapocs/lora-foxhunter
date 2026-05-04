@@ -150,6 +150,41 @@ void SerialConfig::handle_set(char *field, char *value) {
         cfg_.cr = (uint8_t)v;
         serial_.print("OK\r\n");
 
+    } else if (strcmp(field, "BEEP") == 0) {
+        int v = atoi(value);
+        if (v < 20 || v > 500) {
+            serial_.print("ERR: BEEP must be 20-500 ms\r\n");
+            return;
+        }
+        cfg_.beep_duration_ms = (uint16_t)v;
+        serial_.print("OK\r\n");
+
+    } else if (strcmp(field, "FREQMIN") == 0) {
+        int v = atoi(value);
+        if (v < 50 || v > 5000) {
+            serial_.print("ERR: FREQMIN must be 50-5000 Hz\r\n");
+            return;
+        }
+        if (v >= cfg_.beep_freq_max) {
+            serial_.print("ERR: FREQMIN must be less than FREQMAX\r\n");
+            return;
+        }
+        cfg_.beep_freq_min = (uint16_t)v;
+        serial_.print("OK\r\n");
+
+    } else if (strcmp(field, "FREQMAX") == 0) {
+        int v = atoi(value);
+        if (v < 50 || v > 5000) {
+            serial_.print("ERR: FREQMAX must be 50-5000 Hz\r\n");
+            return;
+        }
+        if (v <= cfg_.beep_freq_min) {
+            serial_.print("ERR: FREQMAX must be greater than FREQMIN\r\n");
+            return;
+        }
+        cfg_.beep_freq_max = (uint16_t)v;
+        serial_.print("OK\r\n");
+
     } else {
         serial_.print("ERR: unknown field\r\n");
     }
@@ -166,5 +201,11 @@ void SerialConfig::print_all() {
     serial_.print(cfg_.sf);
     serial_.print("\r\nCR     = ");
     serial_.print(cfg_.cr);
-    serial_.print("\r\n");
+    serial_.print("\r\nBEEP   = ");
+    serial_.print(cfg_.beep_duration_ms);
+    serial_.print(" ms\r\nFREQMIN= ");
+    serial_.print(cfg_.beep_freq_min);
+    serial_.print(" Hz\r\nFREQMAX= ");
+    serial_.print(cfg_.beep_freq_max);
+    serial_.print(" Hz\r\n");
 }

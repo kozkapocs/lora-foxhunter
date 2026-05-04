@@ -224,6 +224,15 @@ void SerialConfig::handle_set(char *field, char *value) {
         cfg_.cr = (uint8_t)v;
         serial_.print("OK\r\n");
 
+    } else if (strcmp(field, "TXPOWER") == 0) {
+        int v = atoi(value);
+        if (v < -9 || v > 22) {
+            serial_.print("ERR: TXPOWER must be -9 to 22 (dBm)\r\n");
+            return;
+        }
+        cfg_.tx_power = (int8_t)v;
+        serial_.print("OK\r\n");
+
     } else {
         serial_.print("ERR: unknown field\r\n");
     }
@@ -247,5 +256,6 @@ void SerialConfig::print_all() {
     serial_.print("BW:      "); serial_.println(cfg_.bw, 2);
     serial_.print("SF:      "); serial_.println(cfg_.sf);
     serial_.print("CR:      "); serial_.println(cfg_.cr);
+    serial_.print("TXPOWER: "); serial_.println(cfg_.tx_power);
     serial_.print("-------------------------------\r\n");
 }

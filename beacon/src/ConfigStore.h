@@ -19,6 +19,7 @@ struct BeaconConfig {
     uint8_t period_s;                        // full cycle duration in s (default 20)
     uint8_t sf;                              // spreading factor 5-12 (default 9)
     uint8_t cr;                              // coding rate 5-8      (default 5)
+    int8_t  tx_power;                        // TX power in dBm, -9 to 22 (default 18)
 };
 
 // Fill all fields with factory defaults.

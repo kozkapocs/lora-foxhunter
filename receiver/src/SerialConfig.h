@@ -11,6 +11,9 @@
 //   SET BW    <kHz>      — LoRa bandwidth
 //   SET SF    <5-12>     — LoRa spreading factor
 //   SET CR    <5-8>      — LoRa coding rate
+//   SET BEEP  <ms>       — buzzer beep duration in milliseconds (20-500)
+//   SET FREQMIN <Hz>     — buzzer minimum frequency in Hz (50-5000)
+//   SET FREQMAX <Hz>     — buzzer maximum frequency in Hz (50-5000)
 //   GET ALL              — print all current parameters
 //   SAVE                 — persist current config to flash
 //   RESET                — erase stored config and reboot

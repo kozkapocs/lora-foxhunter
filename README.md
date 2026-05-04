@@ -19,10 +19,34 @@ This project implements the transmitter and receiver firmware using affordable o
 - **Role:** Listens for beacon packets, filters by system identifier, and displays the signal strength (RSSI) of the selected fox on the built-in OLED screen. The player navigates with the joystick to select which fox to measure.
 - **Build & documentation:** [receiver/README.md](receiver/README.md)
 
-### Configuration tool
+### Configuration tools
 - **Location:** `tools/`
-- `configure_beacon.py` — configures a beacon over USB serial
-- `configure_receiver.py` — configures a receiver over USB serial
+- `configure_beacon.py` — Python CLI tool to configure a beacon over USB serial
+- `configure_receiver.py` — Python CLI tool to configure a receiver over USB serial
+- `web_configurator.html` — Web-based configurator using Chrome Web Serial API (single HTML file, no dependencies)
+
+#### Web Configurator
+
+Open `tools/web_configurator.html` in Chrome or Edge browser. The configurator provides a graphical interface to configure both beacons and receivers:
+
+**Features:**
+- Select device type (beacon/receiver) with radio buttons
+- Connect to device via Web Serial API (no Python installation required)
+- Read current configuration from device (`GET ALL`)
+- Update parameters and save to flash memory (`SET` + `SAVE`)
+- Reset device configuration (`RESET`)
+- Real-time communication log
+
+**Usage:**
+1. Open `web_configurator.html` in Chrome/Edge
+2. Select device type (beacon or receiver)
+3. Click "Kapcsolódás eszközhöz" (Connect to device)
+4. Choose the serial port (e.g., `/dev/ttyACM0`)
+5. Click "Aktuális konfiguráció beolvasása" to read current settings
+6. Modify parameters as needed
+7. Click "Mentés eszközre" to save configuration
+
+**Requirements:** Chrome 89+ or Edge 89+ (Web Serial API support)
 
 ---
 

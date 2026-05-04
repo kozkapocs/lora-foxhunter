@@ -69,7 +69,7 @@ static bool radio_begin() {
         int16_t state = radio.begin(
             cfg.freq, cfg.bw, cfg.sf, cfg.cr,
             RADIOLIB_SX126X_SYNC_WORD_PRIVATE,
-            22, 8, t.tcxo, t.ldo
+            cfg.tx_power, 8, t.tcxo, t.ldo
         );
         if (state == RADIOLIB_ERR_NONE) {
             Serial.print("INFO: radio OK tcxo="); Serial.print(t.tcxo);
@@ -94,6 +94,7 @@ static void radio_apply_params() {
     radio.setBandwidth(cfg.bw);
     radio.setSpreadingFactor(cfg.sf);
     radio.setCodingRate(cfg.cr);
+    radio.setOutputPower(cfg.tx_power);
 }
 
 // ---------------------------------------------------------------------------

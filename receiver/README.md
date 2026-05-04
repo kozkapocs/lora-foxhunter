@@ -1,7 +1,8 @@
 # FoxHunter Receiver Firmware
 
 LoRa receiver for fox-hunting (radio direction finding) events.
-Displays the signal strength of the selected beacon on an OLED screen.
+Displays the signal strength of the selected beacon on an OLED screen and
+provides audio feedback via a built-in buzzer with pitch varying by signal strength.
 Runs on the **Seeed Wio Tracker L1** (nRF52840 + SX1262).
 
 ## Table of Contents
@@ -24,7 +25,8 @@ Runs on the **Seeed Wio Tracker L1** (nRF52840 + SX1262).
 | MCU board  | Seeed Wio Tracker L1 |
 | Radio      | SX1262 (built-in) |
 | Display    | 1.3" SH1106 OLED 128×64 (built-in, I2C 0x3D) |
-| Input      | 5-way joystick (built-in) |
+| Input      | 5-way joystick + Menu button (built-in) |
+| Audio      | Passive buzzer (built-in, D12/P1.0) |
 
 **SX1262 pin mapping:**
 
@@ -119,6 +121,9 @@ helper, or send commands manually with any serial terminal.
 | `SET BW <kHz>`      | LoRa bandwidth (e.g. `125`) |
 | `SET SF <5-12>`     | Spreading factor |
 | `SET CR <5-8>`      | Coding rate |
+| `SET BEEP <ms>`     | Buzzer beep duration in milliseconds (20-500, default 100) |
+| `SET FREQMIN <Hz>`  | Buzzer minimum frequency in Hz (50-5000, default 500) |
+| `SET FREQMAX <Hz>`  | Buzzer maximum frequency in Hz (50-5000, default 2500) |
 | `GET ALL`           | Print current parameters |
 | `SAVE`              | Persist config to flash |
 | `RESET`             | Erase config and reboot |
@@ -137,12 +142,30 @@ The LoRa parameters default to the same values used by the beacon firmware
 
 ## Operation
 
+### Joystick Controls
+
 - **Joystick UP**: increment selected fox number (wraps 1 → 255 → 1)
 - **Joystick DOWN**: decrement selected fox number (wraps 1 → 255 → 1)
 
+### Audio Feedback (Buzzer)
+
+- **Menu button** (next to joystick): toggle buzzer ON/OFF
+  - Buzzer is **OFF by default** on power-up
+  - Pressing the Menu button toggles the buzzer state
+  - Serial output confirms: `"Buzzer ON"` / `"Buzzer OFF"`
+
+- **How it works**:
+  - Each received packet triggers a beep
+  - Beep pitch varies with signal strength (RSSI):
+    - Weak signal (-120 dBm): low tone (configurable, default 500 Hz)
+    - Strong signal (0 dBm): high tone (configurable, default 2500 Hz)
+  - Beep duration is configurable via `SET BEEP <ms>` (default 100 ms)
+  - Frequency range is configurable via `SET FREQMIN/FREQMAX <Hz>` (defaults: 500-2500 Hz)
+  - No signal (timeout): buzzer is silent
+
 Only packets whose `system_id` matches the configured value **and** whose fox
-number matches the currently selected fox are shown.  All other packets are
-silently discarded.
+number matches the currently selected fox are shown and trigger beeps.  All
+other packets are silently discarded.
 
 ---
 

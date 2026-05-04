@@ -86,6 +86,9 @@ def apply_settings(ser: serial.Serial, args: argparse.Namespace) -> bool:
         ("bw",    "SET BW {}"),
         ("sf",    "SET SF {}"),
         ("cr",    "SET CR {}"),
+        ("beep",  "SET BEEP {}"),
+        ("freq_min", "SET FREQMIN {}"),
+        ("freq_max", "SET FREQMAX {}"),
     ]
 
     any_sent = False
@@ -114,6 +117,9 @@ def main() -> None:
     parser.add_argument("--bw",    type=float, help="LoRa bandwidth in kHz (default 125)")
     parser.add_argument("--sf",    type=int,   help="Spreading factor 5-12 (default 9)")
     parser.add_argument("--cr",    type=int,   help="Coding rate 5-8 (default 5)")
+    parser.add_argument("--beep",  type=int,   help="Buzzer beep duration in ms, 20-500 (default 100)")
+    parser.add_argument("--freq-min", type=int, help="Buzzer min frequency in Hz, 50-5000 (default 500)")
+    parser.add_argument("--freq-max", type=int, help="Buzzer max frequency in Hz, 50-5000 (default 2500)")
     parser.add_argument("--reset", action="store_true", help="Erase stored config and reboot")
     args = parser.parse_args()
 
@@ -128,7 +134,7 @@ def main() -> None:
 
     has_set_args = any(
         getattr(args, a) is not None
-        for a in ("sysid", "freq", "bw", "sf", "cr")
+        for a in ("sysid", "freq", "bw", "sf", "cr", "beep", "freq_min", "freq_max")
     )
     if not has_set_args:
         print("Current config on device:")

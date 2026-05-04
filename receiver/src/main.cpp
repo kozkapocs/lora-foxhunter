@@ -16,7 +16,11 @@
 //   P_LORA_NSS  = 4  (D4)    SX126X_RXEN = 5  (D5)
 //   P_LORA_DIO_1= 1  (D1)    JOYSTICK_UP = 25 (D25)
 //   P_LORA_RESET= 2  (D2)    JOYSTICK_DOWN=26 (D26)
-//   P_LORA_BUSY = 3  (D3)
+//   P_LORA_BUSY = 3  (D3)    PIN_BUTTON1 = 13 (D13, Menu button)
+
+#ifndef PIN_BUZZER
+#define PIN_BUZZER 12  // D12 P1.0
+#endif
 
 // Signal hold time: if no packet arrives within this window the display
 // reverts to "no signal" state.
@@ -40,6 +44,12 @@ ReceiverDisplay display;
 // Joystick state (INPUT_PULLUP → active LOW)
 static bool joy_up_prev   = HIGH;
 static bool joy_down_prev = HIGH;
+
+// Menu button state (INPUT_PULLUP → active LOW)
+static bool menu_btn_prev = HIGH;
+
+// Buzzer state (toggled by Menu button, OFF by default)
+static bool buzzer_enabled = false;
 
 // Signal state
 static uint8_t   selected_fox  = 1;
@@ -67,6 +77,28 @@ static bool joystick_down_pressed() {
     return edge;
 }
 
+static bool menu_button_pressed() {
+    bool state = digitalRead(PIN_BUTTON1);
+    bool edge  = (state == LOW && menu_btn_prev == HIGH);
+    menu_btn_prev = state;
+    return edge;
+}
+
+// ---------------------------------------------------------------------------
+// Buzzer helpers
+// ---------------------------------------------------------------------------
+// Map RSSI (-120 to 0 dBm) to frequency range (cfg.beep_freq_min to cfg.beep_freq_max) linearly.
+static uint16_t rssi_to_frequency(float rssi, const ReceiverConfig &cfg) {
+    const float RSSI_MIN = -120.0f;
+    const float RSSI_MAX = 0.0f;
+    
+    float normalized = (rssi - RSSI_MIN) / (RSSI_MAX - RSSI_MIN);
+    if (normalized < 0.0f) normalized = 0.0f;
+    if (normalized > 1.0f) normalized = 1.0f;
+    
+    return (uint16_t)(cfg.beep_freq_min + normalized * (cfg.beep_freq_max - cfg.beep_freq_min));
+}
+
 // ---------------------------------------------------------------------------
 // Setup
 // ---------------------------------------------------------------------------
@@ -76,6 +108,13 @@ void setup() {
     // Joystick pins
     pinMode(JOYSTICK_UP,   INPUT_PULLUP);
     pinMode(JOYSTICK_DOWN, INPUT_PULLUP);
+
+    // Menu button pin
+    pinMode(PIN_BUTTON1, INPUT_PULLUP);
+
+    // Buzzer pin
+    pinMode(PIN_BUZZER, OUTPUT);
+    digitalWrite(PIN_BUZZER, LOW);
 
     // I2C for OLED
     Wire.setPins(PIN_WIRE_SDA, PIN_WIRE_SCL);
@@ -181,6 +220,15 @@ void loop() {
         display_dirty = true;
     }
 
+    // --- Menu button: toggle buzzer ---
+    if (menu_button_pressed()) {
+        buzzer_enabled = !buzzer_enabled;
+        Serial.print(buzzer_enabled ? "Buzzer ON\r\n" : "Buzzer OFF\r\n");
+        if (!buzzer_enabled) {
+            noTone(PIN_BUZZER);  // Ensure buzzer is silent when disabled
+        }
+    }
+
     // --- Joystick: change selected fox ---
     if (joystick_up_pressed()) {
         if (selected_fox < 255) {
@@ -222,6 +270,12 @@ void loop() {
             last_rx_ms = millis();
             has_signal = true;
             display_dirty = true;
+
+            // Buzzer beep on packet reception (if enabled)
+            if (buzzer_enabled) {
+                uint16_t freq = rssi_to_frequency(pkt.rssi, cfg);
+                tone(PIN_BUZZER, freq, cfg.beep_duration_ms);
+            }
         }
     }
 
