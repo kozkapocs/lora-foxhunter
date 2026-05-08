@@ -18,7 +18,7 @@ This project implements the transmitter and receiver firmware using affordable o
 
 ### Receiver
 - **Hardware:** Seeed Wio Tracker L1 (nRF52840 + SX1262 + 1.3" OLED + joystick)
-- **Role:** Listens for beacon packets, filters by system identifier, and displays the signal strength (RSSI) of the selected fox on the built-in OLED screen. The player navigates with the joystick to select which fox to measure.
+- **Role:** Listens for beacon packets, filters by system identifier, and displays a 0-10 signal strength scale and smiley indicator (derived from RSSI) of the selected fox on the built-in OLED screen. Optional audio feedback via built-in buzzer with pitch varying by signal strength. The player navigates with the joystick to select which fox to measure.
 - **Build & documentation:** [receiver/README.md](receiver/README.md)
 
 ![Receiver](images/receiver.jpg)
@@ -46,11 +46,11 @@ Open `tools/web_configurator.html` in Chrome or Edge browser. The configurator p
 **Usage:**
 1. Open `web_configurator.html` in Chrome/Edge
 2. Select device type (beacon or receiver)
-3. Click "Kapcsolódás eszközhöz" (Connect to device)
+3. Click "Connect to device"
 4. Choose the serial port (e.g., `/dev/ttyACM0`)
-5. Click "Aktuális konfiguráció beolvasása" to read current settings
+5. Click "Read current configuration" to read current settings
 6. Modify parameters as needed
-7. Click "Mentés eszközre" to save configuration
+7. Click "Save to device" to save configuration
 
 **Requirements:** Chrome 89+ or Edge 89+ (Web Serial API support)
 
